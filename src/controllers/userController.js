@@ -59,24 +59,28 @@ const getUsers = (req, res) => {
             OFFSET ?
         `;
 
-      db.query(dataQuery, [limit, offset], (error, results) => {
-        if (error) {
-          return res.status(500).json({
-            message: "Database error",
+      db.query(
+        dataQuery,
+        [searchValue, searchValue, searchValue, searchValue, limit, offset],
+        (error, results) => {
+          if (error) {
+            return res.status(500).json({
+              message: "Database error",
+            });
+          }
+
+          res.json({
+            data: results,
+
+            pagination: {
+              page: page,
+              limit: limit,
+              total: totalUsers,
+              totalPages: Math.ceil(totalUsers / limit),
+            },
           });
-        }
-
-        res.json({
-          data: results,
-
-          pagination: {
-            page: page,
-            limit: limit,
-            total: totalUsers,
-            totalPages: Math.ceil(totalUsers / limit),
-          },
-        });
-      });
+        },
+      );
     },
   );
 };
