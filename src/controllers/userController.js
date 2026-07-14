@@ -1,23 +1,26 @@
 const db = require("../db");
 
+// Get all users without pagination and search
+const getAllUsers = (req, res) => {
+  const query = "SELECT * FROM users";
+
+  db.query(query, (err, results) => {
+    if (err) {
+      console.log(err);
+
+      return res.status(500).json({
+        message: "Database error",
+      });
+    }
+
+    res.json({
+      data: results,
+    });
+  });
+};
+
+// Get users with pagination and search
 const getUsers = (req, res) => {
-  //   NOTE :: IF YOU NEED GET ALL USERS WITHOUT PAGINATION, UNCOMMENT THE FOLLOWING CODE:
-  //   const query = "SELECT * FROM users";
-
-  //     db.query(query, (err, results) => {
-  //     if (err) {
-  //       console.log(err);
-
-  //       return res.status(500).json({
-  //         message: "Database error",
-  //       });
-  //     }
-
-  //     res.json({
-  //       data: results,
-  //     });
-  //   });
-
   const page = Number(req.query.page) || 1;
   const limit = Number(req.query.limit) || 5;
   const search = req.query.search || "";
@@ -85,6 +88,54 @@ const getUsers = (req, res) => {
   );
 };
 
+// Create a new user
+const createUser = (req, res) => {
+  const { first_name, last_name, email, phone, age, city } = req.body;
+
+  const query = `
+        INSERT INTO users
+        (
+            first_name,
+            last_name,
+            email,
+            phone,
+            age,
+            city
+        )
+        VALUES (?, ?, ?, ?, ?, ?)
+    `;
+
+  db.query(
+    query,
+    [first_name, last_name, email, phone, age, city],
+    (error, result) => {
+      if (error) {
+        console.log(error);
+
+        return res.status(500).json({
+          message: "Failed to create user",
+        });
+      }
+
+      res.status(201).json({
+        message: "User created successfully",
+
+        user: {
+          id: result.insertId,
+          first_name,
+          last_name,
+          email,
+          phone,
+          age,
+          city,
+        },
+      });
+    },
+  );
+};
+
 module.exports = {
   getUsers,
+  getAllUsers,
+  createUser,
 };
